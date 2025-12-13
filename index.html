@@ -5,8 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Éclats de Résine - Créations artisanales en résine époxy">
     <title>Éclats de Résine - Créations artisanales uniques</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <link rel="icon" href="assets/images/logo.png">
+        <link rel="stylesheet" href="assets/css/style.css">
+        <link rel="icon" href="assets/images/logo.png">
+        <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+        <script>
+            (function() {
+                function hasInviteToken() {
+                    return typeof window.location.hash === 'string' && window.location.hash.indexOf('invite_token') !== -1;
+                }
+                function ensureIdentity() {
+                    if (!window.netlifyIdentity) return;
+                    if (hasInviteToken()) {
+                        window.netlifyIdentity.open('login');
+                    }
+                    window.netlifyIdentity.on('login', function() {
+                        window.location.href = '/admin/';
+                    });
+                }
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', ensureIdentity);
+                } else {
+                    ensureIdentity();
+                }
+            })();
+        </script>
 </head>
 <body>
     <!-- Header -->
