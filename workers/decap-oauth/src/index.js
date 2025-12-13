@@ -5,8 +5,21 @@ export default {
     // Helper to build redirect URI consistently
     const callbackUrl = `${url.protocol}//${url.host}/api/oauth/callback`;
 
-    const isAuth = url.pathname === '/api/oauth/authorize' || url.pathname === '/api/oauth/authorize/';
-    const isCallback = url.pathname === '/api/oauth/callback' || url.pathname === '/api/oauth/callback/';
+    const authPaths = new Set([
+      '/api/oauth/authorize',
+      '/api/oauth/authorize/',
+      '/oauth/authorize',
+      '/oauth/authorize/',
+    ]);
+    const callbackPaths = new Set([
+      '/api/oauth/callback',
+      '/api/oauth/callback/',
+      '/oauth/callback',
+      '/oauth/callback/',
+    ]);
+
+    const isAuth = authPaths.has(url.pathname);
+    const isCallback = callbackPaths.has(url.pathname);
 
     // Step 1: start OAuth — redirect user to GitHub auth page
     if (isAuth) {
