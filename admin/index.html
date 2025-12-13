@@ -5,10 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Content Manager</title>
     <link rel="icon" href="/assets/images/logo.png">
-    <!-- Decap CMS with GitHub backend (no external auth required) -->
+    <script>
+      window.CMS_MANUAL_INIT = true;
+    </script>
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
   </head>
   <body>
+    <div id="ncms-app"></div>
     <script>
       (function() {
         function initCMS() {
