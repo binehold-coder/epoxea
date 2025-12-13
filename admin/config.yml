@@ -2,7 +2,8 @@ backend:
   name: github
   repo: binehold-coder/epoxea
   branch: main
-  auth_endpoint: api/auth
+  auth_endpoint: /api/oauth/callback
+  base_url: https://epoxea.pages.dev
   commit_messages:
     create: 'Create {{collection}} "{{slug}}"'
     update: 'Update {{collection}} "{{slug}}"'
