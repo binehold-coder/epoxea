@@ -5,38 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Content Manager</title>
     <link rel="icon" href="/assets/images/logo.png">
-    <!-- Netlify Identity (auth) -->
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
-    <!-- Decap CMS (successor of Netlify CMS) with manual init -->
-    <script>
-      window.CMS_MANUAL_INIT = true;
-    </script>
+    <!-- Decap CMS with GitHub backend (no external auth required) -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
   </head>
   <body>
     <script>
       (function() {
-        function initIdentity() {
-          if (!window.netlifyIdentity) return;
-          window.netlifyIdentity.on('login', function() {
-            window.location.href = '/admin/';
-          });
-        }
         function initCMS() {
           if (window.CMS && typeof window.CMS.init === 'function') {
             window.CMS.init({ configPath: '/admin/config.yml' });
           } else {
-            console.error('CMS failed to load');
+            console.error('Decap CMS failed to load');
           }
         }
-        function boot() {
-          initIdentity();
-          initCMS();
-        }
         if (document.readyState === 'loading') {
-          document.addEventListener('DOMContentLoaded', boot);
+          document.addEventListener('DOMContentLoaded', initCMS);
         } else {
-          boot();
+          initCMS();
         }
       })();
     </script>
