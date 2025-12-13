@@ -5,8 +5,11 @@ export default {
     // Helper to build redirect URI consistently
     const callbackUrl = `${url.protocol}//${url.host}/api/oauth/callback`;
 
+    const isAuth = url.pathname === '/api/oauth/authorize' || url.pathname === '/api/oauth/authorize/';
+    const isCallback = url.pathname === '/api/oauth/callback' || url.pathname === '/api/oauth/callback/';
+
     // Step 1: start OAuth — redirect user to GitHub auth page
-    if (url.pathname === '/api/oauth/authorize') {
+    if (isAuth) {
       const authorizeUrl = new URL('https://github.com/login/oauth/authorize');
       authorizeUrl.searchParams.set('client_id', env.GITHUB_CLIENT_ID);
       authorizeUrl.searchParams.set('redirect_uri', callbackUrl);
@@ -15,7 +18,7 @@ export default {
     }
 
     // Only handle OAuth callback route
-    if (url.pathname === '/api/oauth/callback') {
+    if (isCallback) {
       const code = url.searchParams.get('code');
       if (!code) {
         return new Response('Missing code', { status: 400 });
