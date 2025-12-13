@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Éclats de Résine - Créations artisanales en résine époxy">
+    <title>Éclats de Résine - Créations artisanales uniques</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="icon" href="assets/images/logo.png">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="#home" class="logo-link">
+                        <img src="https://picsum.photos/50/50?random=999" alt="Éclats de Résine" class="logo-img">
+                        <span class="logo-text">Éclats</span>
+                    </a>
+                </div>
+                
+                <nav class="nav">
+                    <ul class="nav-list">
+                        <li><a href="#home" class="nav-link" data-i18n="header.home">Accueil</a></li>
+                        <li><a href="#collections" class="nav-link" data-i18n="header.collections">Collections</a></li>
+                        <li><a href="#about" class="nav-link" data-i18n="header.about">À propos</a></li>
+                        <li><a href="#contact" class="nav-link" data-i18n="header.contact">Contact</a></li>
+                    </ul>
+                </nav>
+                
+                <div class="header-right">
+                    <div class="language-selector">
+                        <select id="language-select" class="lang-select" aria-label="Sélectionner la langue">
+                            <option value="fr">FR</option>
+                            <option value="en">EN</option>
+                            <option value="de">DE</option>
+                            <option value="es">ES</option>
+                            <option value="it">IT</option>
+                        </select>
+                    </div>
+                    <button class="menu-toggle" id="mobile-burger" aria-label="Basculer le menu" aria-expanded="false">
+                        <span>&nbsp;</span>
+                        <span>&nbsp;</span>
+                        <span>&nbsp;</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <nav class="mobile-menu" id="mobile-menu">
+        <ul class="mobile-nav-list">
+            <li><a href="#home" class="mobile-nav-link" data-i18n="header.home">Accueil</a></li>
+            <li><a href="#collections" class="mobile-nav-link" data-i18n="header.collections">Collections</a></li>
+            <li><a href="#about" class="mobile-nav-link" data-i18n="header.about">À propos</a></li>
+            <li><a href="#contact" class="mobile-nav-link" data-i18n="header.contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <!-- Hero Carousel Background -->
+        <button class="hero-carousel-btn hero-carousel-btn-prev" aria-label="Précédent">❮</button>
+        <div class="hero-carousel-container hero-carousel-bg">
+            <div class="hero-carousel-wrapper">
+                <div class="hero-carousel-track" id="hero-carousel-track"></div>
+            </div>
+        </div>
+        <button class="hero-carousel-btn hero-carousel-btn-next" aria-label="Suivant">❯</button>
+        
+        <!-- Hero Content Overlay -->
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title" data-i18n="hero.title">Créations en Résine</h1>
+            <p class="hero-subtitle" data-i18n="hero.subtitle">Chaque pièce est unique et faite avec passion</p>
+            <a href="#collections" class="cta-button" data-i18n="hero.cta">Découvrir nos collections</a>
+        </div>
+    </section>
+
+    <!-- Random Gallery Section -->
+    <section class="inspirations-gallery">
+        <div class="container">
+            <h2 class="section-title" data-i18n="gallery.title">Inspirations</h2>
+            <div class="gallery-grid" id="gallery-grid"></div>
+        </div>
+    </section>
+
+    <!-- Gallery Modal -->
+    <div class="gallery-modal" id="gallery-modal">
+        <div class="gallery-modal-content">
+            <button class="gallery-modal-close" id="gallery-modal-close" aria-label="Close gallery">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
+                </svg>
+            </button>
+            <div class="gallery-carousel-wrapper">
+                <div class="gallery-carousel-track" id="gallery-carousel-track"></div>
+                <button class="gallery-carousel-btn gallery-carousel-prev" id="gallery-prev" aria-label="Previous photo">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+                    </svg>
+                </button>
+                <button class="gallery-carousel-btn gallery-carousel-next" id="gallery-next" aria-label="Next photo">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Collections Section -->
+    <section id="collections" class="collections">
+        <div class="container">
+            <h2 class="section-title" data-i18n="collections.title">Nos Collections</h2>
+            <p class="section-subtitle" data-i18n="collections.subtitle">Explorez nos créations artisanales uniques</p>
+
+            <!-- Products Grid -->
+            <div class="products-grid" id="products-grid"></div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <h2 class="section-title" data-i18n="about.title">À propos</h2>
+            <div class="about-content" id="about-content"></div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials">
+        <div class="container">
+            <h2 class="section-title" data-i18n="testimonials.title">Avis clients</h2>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p class="testimonial-text" data-i18n="testimonials.review1">"Absolutely beautiful work! The attention to detail is amazing."</p>
+                    <p class="testimonial-author" data-i18n="testimonials.author1">- Marie</p>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p class="testimonial-text" data-i18n="testimonials.review2">"Each piece is truly unique and of excellent quality."</p>
+                    <p class="testimonial-author" data-i18n="testimonials.author2">- Jean</p>
+                </div>
+                <div class="testimonial-card">
+                    <div class="stars">★★★★★</div>
+                    <p class="testimonial-text" data-i18n="testimonials.review3">"I love my custom order! Highly recommend!"</p>
+                    <p class="testimonial-author" data-i18n="testimonials.author3">- Sophie</p>
+                </div>
+            </div>
+
+            <button id="open-review-modal" class="review-btn" data-i18n="testimonials.writeReview">Laisser un avis</button>
+        </div>
+    </section>
+
+    <!-- Review Modal -->
+    <div id="review-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h3 data-i18n="testimonials.modalTitle">Laisser un avis</h3>
+            <form id="review-form">
+                <input type="text" id="reviewer-name" placeholder="Votre nom" required data-i18n="testimonials.name" data-i18n-attr="placeholder">
+                <div class="rating-input">
+                    <label data-i18n="testimonials.rating">Note:</label>
+                    <div class="star-rating">
+                        <span class="star" data-value="1">★</span>
+                        <span class="star" data-value="2">★</span>
+                        <span class="star" data-value="3">★</span>
+                        <span class="star" data-value="4">★</span>
+                        <span class="star" data-value="5">★</span>
+                    </div>
+                </div>
+                <textarea id="review-text" placeholder="Votre avis..." required data-i18n="testimonials.review" data-i18n-attr="placeholder"></textarea>
+                <button type="submit" class="submit-btn" data-i18n="form.submit">Envoyer</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- FAQ Section -->
+    <section class="faq">
+        <div class="container">
+            <h2 class="section-title" data-i18n="faq.title">Questions fréquentes</h2>
+            <div class="faq-container">
+                <div class="faq-item">
+                    <h3 class="faq-question" aria-expanded="false" data-i18n="faq.q1">Combien de temps prend une commande personnalisée?</h3>
+                    <div class="faq-answer" data-i18n="faq.a1">Les commandes personnalisées prennent généralement entre 2 à 4 semaines, selon la complexité.</div>
+                </div>
+                <div class="faq-item">
+                    <h3 class="faq-question" aria-expanded="false" data-i18n="faq.q2">Acceptez-vous les retours?</h3>
+                    <div class="faq-answer" data-i18n="faq.a2">Nous acceptons les retours dans les 30 jours si le produit n'a pas été utilisé.</div>
+                </div>
+                <div class="faq-item">
+                    <h3 class="faq-question" aria-expanded="false" data-i18n="faq.q3">Livrez-vous à l'international?</h3>
+                    <div class="faq-answer" data-i18n="faq.a3">Oui, nous livrons dans la plupart des pays européens et au-delà.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <h2 class="section-title" data-i18n="contact.title">Contact</h2>
+            <div class="contact-content" id="contact-content"></div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <p data-i18n="footer.copyright">&copy; 2024 Éclats de Résine. Tous droits réservés.</p>
+                    <p data-i18n="footer.tagline">Créations uniques en résine époxy</p>
+                </div>
+                <div class="footer-social">
+                    <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Instagram">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.07 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM5.838 12a6.162 6.162 0 1 1 12.324 0 6.162 6.162 0 0 1-12.324 0zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm4.965-10.322a1.44 1.44 0 1 1 2.881.001 1.44 1.44 0 0 1-2.881-.001z"/>
+                        </svg>
+                    </a>
+                    <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="social-link" aria-label="Facebook">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5c-.563-.074-1.823-.177-3.456-.177-3.559 0-6.005 2.131-6.005 6.001V8z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll to Top Button -->
+    <button id="scroll-to-top" class="scroll-to-top" aria-label="Retour en haut">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 19V5M5 12l7-7 7 7"/>
+        </svg>
+    </button>
+
+    <!-- Product Modal -->
+    <div id="product-modal" class="modal">
+        <div class="modal-content modal-product">
+            <span class="close-modal">&times;</span>
+            <div class="modal-body">
+                <div class="modal-gallery">
+                    <img id="modal-main-image" src="" alt="Product image" class="modal-main-image">
+                    <div class="gallery-nav">
+                        <button class="gallery-nav-btn gallery-nav-prev" aria-label="Précédent">❮</button>
+                        <button class="gallery-nav-btn gallery-nav-next" aria-label="Suivant">❯</button>
+                    </div>
+                    <div class="gallery-thumbs" id="gallery-thumbs"></div>
+                </div>
+                <div class="modal-info">
+                    <h2 id="modal-product-name"></h2>
+                    <p id="modal-product-description"></p>
+                    <p class="product-price" id="modal-product-price"></p>
+                    <button id="add-to-cart-btn" class="add-to-cart-btn">Ajouter au panier</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/i18n.js" defer></script>
+    <script src="assets/js/app.js" defer></script>
+    <script src="livereload.js"></script>
+</body>
+</html>

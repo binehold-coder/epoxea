@@ -1,0 +1,65 @@
+[
+    {
+        "id": "ornament-galaxy",
+        "name": "Ornament Galaxy",
+        "description": "Beautiful galaxy-themed ornament with shimmering effects",
+        "price": 29.99,
+        "category": "home"
+    },
+    {
+        "id": "ornament-ocean",
+        "name": "Ornament Ocean",
+        "description": "Ocean-inspired ornament with turquoise and blue hues",
+        "price": 34.99,
+        "category": "home"
+    },
+    {
+        "id": "bookmark-forest",
+        "name": "Bookmark Forest",
+        "description": "Nature-inspired bookmark with pressed flowers and leaves",
+        "price": 14.99,
+        "category": "accessories"
+    },
+    {
+        "id": "bookmark-sunset",
+        "name": "Bookmark Sunset",
+        "description": "Warm sunset-colored bookmark with golden accents",
+        "price": 14.99,
+        "category": "accessories"
+    },
+    {
+        "id": "board-mineral",
+        "name": "Board Mineral",
+        "description": "Elegant mineral-patterned board for serving or display",
+        "price": 49.99,
+        "category": "home"
+    },
+    {
+        "id": "board-aurora",
+        "name": "Board Aurora",
+        "description": "Aurora borealis-inspired board with vibrant colors",
+        "price": 54.99,
+        "category": "home"
+    },
+    {
+        "id": "pendant-crystal",
+        "name": "Pendant Crystal",
+        "description": "Crystal-inspired resin pendant with geometric design",
+        "price": 24.99,
+        "category": "jewelry"
+    },
+    {
+        "id": "ring-flower",
+        "name": "Ring Flower",
+        "description": "Botanical ring with real pressed flowers",
+        "price": 19.99,
+        "category": "jewelry"
+    },
+    {
+        "id": "coaster-marble",
+        "name": "Coaster Marble",
+        "description": "Elegant marble-patterned coaster with protective backing",
+        "price": 12.99,
+        "category": "accessories"
+    }
+]
