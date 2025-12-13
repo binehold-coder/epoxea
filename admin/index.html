@@ -11,6 +11,13 @@
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
   </head>
   <body>
+    <script>
+      window.addEventListener('message', function(ev) {
+        try {
+          console.log('OAuth message received:', ev.origin, ev.data);
+        } catch (e) {}
+      });
+    </script>
     <div id="ncms-app"></div>
     <script>
       (function() {
