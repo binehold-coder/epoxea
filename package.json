@@ -1,0 +1,12 @@
+{
+  "name": "epoxea",
+  "version": "1.0.0",
+  "description": "Multilingual static website with Netlify CMS",
+  "scripts": {
+    "dev": "echo 'Development server not configured'",
+    "build": "echo 'No build needed - static site'"
+  },
+  "keywords": ["static-site", "netlify", "cms"],
+  "author": "",
+  "license": "MIT"
+}
