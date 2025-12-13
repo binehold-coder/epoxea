@@ -61,9 +61,9 @@ export default {
       // Return the token to Decap CMS via postMessage. Close only if window was opened by the app.
       const html = `<!DOCTYPE html><html><body><script>
         (function() {
-          const target = 'https://epoxea.pages.dev';
+          const target = '*';
           if (window.opener && !window.opener.closed) {
-            window.opener.postMessage({ token: '${tokenData.access_token}', provider: 'github' }, target);
+            window.opener.postMessage({ token: '${tokenData.access_token}' }, target);
             setTimeout(() => window.close(), 50);
           } else {
             // Fallback: show token if window not opened by app
