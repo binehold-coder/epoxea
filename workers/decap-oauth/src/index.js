@@ -45,13 +45,18 @@ export default {
         return new Response(`Error: ${tokenData.error}`, { status: 400 });
       }
 
-      // Return the token to Decap CMS via postMessage
+      // Return the token to Decap CMS via postMessage. Close only if window was opened by the app.
       const html = `<!DOCTYPE html><html><body><script>
-        window.opener && window.opener.postMessage(
-          { token: '${tokenData.access_token}' },
-          'https://epoxea.pages.dev'
-        );
-        window.close();
+        (function() {
+          const target = 'https://epoxea.pages.dev';
+          if (window.opener && !window.opener.closed) {
+            window.opener.postMessage({ token: '${tokenData.access_token}' }, target);
+            setTimeout(() => window.close(), 50);
+          } else {
+            // Fallback: show token if window not opened by app
+            document.write('Token received. You can close this window.');
+          }
+        })();
       <\/script></body></html>`;
 
       return new Response(html, { headers: { 'Content-Type': 'text/html' } });
