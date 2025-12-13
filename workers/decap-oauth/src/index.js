@@ -63,7 +63,7 @@ export default {
         (function() {
           const target = 'https://epoxea.pages.dev';
           if (window.opener && !window.opener.closed) {
-            window.opener.postMessage({ token: '${tokenData.access_token}' }, target);
+            window.opener.postMessage({ token: '${tokenData.access_token}', provider: 'github' }, target);
             setTimeout(() => window.close(), 50);
           } else {
             // Fallback: show token if window not opened by app
