@@ -1,0 +1,4 @@
+name = "decap-oauth"
+main = "workers/decap-oauth/src/index.js"
+compatibility_date = "2025-12-13"
+workers_dev = true
