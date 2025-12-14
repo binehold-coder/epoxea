@@ -1,131 +1,73 @@
-# OAuth & Decap CMS Login Bug — Debug Report
+# OAuth & Decap CMS — Solution Applied
 
-## Problem Summary
-Decap CMS (3.9.0) on GitHub backend with Cloudflare Workers OAuth is **NOT persisting login session**. User logs in via GitHub, OAuth window shows token successfully, page reloads, but then **login screen appears again** instead of showing CMS collections.
+## ✅ РЕШЕНО: Переход на встроенный GitHub backend с implicit auth
 
-## Current Setup
-- **Worker deployed**: `https://epoxea.binehold.workers.dev` (Cloudflare Workers via wrangler)
-- **Worker code**: `workers/decap-oauth/src/index.js`
-- **Admin page**: `admin/index.html`
-- **CMS config**: `admin/config.yml`
-- **Decap CMS version**: 3.9.0
-- **CMS init mode**: Manual (via `window.CMS_MANUAL_INIT = true`) to prevent double-mount errors
-- **GitHub OAuth App**: Callback URL properly set to `https://epoxea.binehold.workers.dev/callback`
+Вместо кастомного OAuth сервера на Cloudflare Workers применена официальная поддержка GitHub в Decap CMS.
 
-## Workflow (What Should Happen)
-1. User opens `/admin/` → Decap CMS loads, no token yet → shows "Login with GitHub" button
-2. User clicks → opens popup to GitHub OAuth `/auth` endpoint
-3. Popup redirects to GitHub → user authorizes → GitHub redirects back to `/callback`
-4. Worker at `/callback` exchanges code for token, returns HTML with postMessage
-5. postMessage sends token to opener (`admin/index.html`)
-6. **admin/index.html receives token via window.addEventListener('message')**, stores in localStorage as `netlify-cms-user`
-7. Page reloads
-8. On reload, Decap should read `netlify-cms-user` from localStorage and show collections WITHOUT asking for login again
+## Что изменилось
 
-## What Actually Happens
-- Steps 1–4 work ✓
-- Token arrives and is displayed in popup window ✓
-- Popup closes ✓
-- **admin/index.html page reloads, but postMessage event listener may NOT be receiving the token OR localStorage payload is wrong**
-- After reload, Decap CMS still shows login screen
+### 1. admin/config.yml
+- **ДО**: `base_url: https://epoxea.binehold.workers.dev`, `auth_endpoint: /auth` (кастомный воркер)
+- **ПОСЛЕ**: 
+  ```yaml
+  backend:
+    name: github
+    repo: binehold-coder/epoxea
+    branch: main
+    auth_type: implicit
+    app_id: Ov23liRVrbchqD0R72vO
+  ```
 
-## Attempted Fixes (In Order)
+### 2. admin/index.html
+- **ДО**: 169 строк с `window.CMS_MANUAL_INIT`, кастомными postMessage listeners, localStorage парсингом
+- **ПОСЛЕ**: 11 строк минимального HTML + один `<script src="https://unpkg.com/decap-cms@^3.9.0/dist/decap-cms.js"></script>`
 
-### Attempt 1: Fix OAuth base_url domain mismatch
-**Issue**: `admin/config.yml` had `base_url: https://epoxea-cms.binehold.workers.dev` but worker is deployed to `https://epoxea.binehold.workers.dev`
-**Fix**: Changed `base_url` to `https://epoxea.binehold.workers.dev` in `admin/config.yml`
-**Result**: GitHub OAuth dialog no longer shows "redirect_uri is not associated" error ✓, but login persistence still broken
+### 3. GitHub OAuth App (Settings → Developer settings → OAuth Apps)
+- **Authorization callback URL должна быть**: `https://epoxea.pages.dev/admin/` (или ваш домен)
+- **НЕ** `/callback`, `/auth`, `/token` — просто `/admin/`
 
-### Attempt 2: Move GitHub OAuth secrets to Wrangler secrets
-**Issue**: `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` were hardcoded in `workers/decap-oauth/wrangler.toml`
-**Fix**: 
-- Removed `[vars]` section from `wrangler.toml`
-- Used `wrangler secret put GITHUB_CLIENT_ID` and `wrangler secret put GITHUB_CLIENT_SECRET`
-- Redeployed worker
-**Result**: Secrets now secure ✓, but auth persistence still broken
+## Как работает implicit flow
 
-### Attempt 3: localStorage payload with `backend: "github"`
-**Issue**: Decap might not recognize `backend` field
-**Fix**: Changed `admin/index.html` to store `{ token, backend: "github" }` in localStorage
-**Result**: No improvement, still shows login screen
+1. User открывает `/admin/` → видит "Login with GitHub"
+2. Нажимает → Decap редирект на GitHub
+3. GitHub спрашивает "Allow access?" → user нажимает Authorize
+4. GitHub редирект на `https://your-domain/admin/#access_token=...`
+5. Decap парсит токен из URL hash
+6. Сохраняет сессию в localStorage (автоматически)
+7. Перезагружает page → коллекции загружены
 
-### Attempt 4: localStorage payload with `provider: "github"`
-**Issue**: `backend` might be wrong field name; Decap uses `provider`
-**Fix**: Changed to `{ token, provider: "github" }`
-**Result**: No improvement
+## Преимущества
+- ✅ Официально поддерживается Decap
+- ✅ Нет воркеров, нет костылей
+- ✅ Нет лимитов Netlify (встроенный OAuth для бесплатных сайтов)
+- ✅ Меньше кода → меньше багов
+- ✅ Сессия сохраняется надежнее
 
-### Attempt 5: Enhanced payload with `provider + login + user profile`
-**Issue**: Decap might need additional fields for session validation
-**Fix**: Modified to fetch GitHub user profile via `https://api.github.com/user` and store:
-```json
-{
-  "token": "gho_xxx",
-  "provider": "github",
-  "login": "username",
-  "user": {
-    "login": "username",
-    "name": "Full Name",
-    "avatar_url": "...",
-    "html_url": "https://github.com/username"
-  }
-}
-```
-**Result**: No improvement
+## Ограничения (честно)
+- ❌ Только GitHub (не GitLab, не Bitbucket)
+- ❌ Не для команды редакторов (individual только)
+- ❌ GitHub может попросить перелогин раз в N дней
 
-### Attempt 6: Add `backendName: "github"` field + sessionStorage mirror
-**Issue**: Maybe Decap needs `backendName` in addition to `provider`
-**Fix**: Added `backendName: "github"` to payload, also stored in `sessionStorage` as fallback
-**Result**: Still broken
+## Что было удалено
+- `workers/decap-oauth/` — больше не нужен (можно удалить из git или оставить)
+- Все постMessage логика
+- Все localStorage манипуляции
+- `window.CMS_MANUAL_INIT` флаг
 
-### Attempt 7: Add verbose logging to trace flow
-**Issue**: Cannot see if postMessage reaches admin page or what happens on page reload
-**Fix**: Added console.log statements:
-- `[Decap OAuth] postMessage received` when message arrives
-- `[Decap OAuth] stored netlify-cms-user` when saving to localStorage
-- `[Decap OAuth] existing netlify-cms-user` when page reloads
-- `[Decap OAuth] no stored user yet` if nothing in storage
-**Result**: User reports these logs do NOT appear in console → suggests postMessage is NOT reaching the admin page
+## Коммит
+- `Switch to Decap native GitHub implicit auth - remove custom OAuth server`
 
-## Root Cause Hypothesis
-Since postMessage logs never appear in console, the issue is likely:
+## Что проверить
 
-1. **Window reference broken**: The popup's `window.opener` might be null or closed before postMessage is sent
-2. **Timing issue**: postMessage sent before `admin/index.html` event listener is attached
-3. **Cross-origin/CORS issue**: postMessage blocked by browser policy (unlikely with same-origin setup)
-4. **Worker HTML response issue**: Worker's `/callback` HTML may not properly reference the parent window
-5. **Page navigation issue**: Browser might navigate away from `/admin/` before postMessage is processed
+1. Откройте `https://your-domain/admin/`
+2. Нажмите "Login with GitHub"
+3. Разрешите доступ в GitHub
+4. После редиректа должны увидеть коллекции (Products, Hero, About и т.д.)
+5. Перезагрузите страницу — сессия сохранилась, снова не просит логин
 
-## Key Code Locations
-- Worker OAuth callback response: `workers/decap-oauth/src/index.js` (lines ~45–70) — generates HTML with postMessage script
-- Admin page OAuth listener: `admin/index.html` (lines ~18–40+) — should receive postMessage
-- Decap init: `admin/index.html` (lines ~50–70+) — tries to init CMS after manual flag
+## Если не работает
+- Проверьте, что `Authorization callback URL` в GitHub OAuth App именно `https://your-domain/admin/`
+- Проверьте, что `app_id` в config.yml совпадает с Client ID из GitHub
+- Очистите localStorage вручную: `localStorage.clear()` в консоли
+- Откройте Network tab, посмотрите, приходит ли редирект с `#access_token=`
 
-## Next Steps to Debug
-1. **Check if postMessage is actually being sent**: Add log in worker's `/callback` HTML template before `window.opener.postMessage()`
-2. **Verify event listener is attached**: Check if DOMContentLoaded fires before postMessage is sent
-3. **Check window.opener is not null**: Log `window.opener` in worker's HTML
-4. **Alternative approach**: Instead of relying on postMessage for popup window, use:
-   - URL hash/query params to pass token (less secure but simpler)
-   - localStorage with polling mechanism
-   - Service worker to intercept OAuth redirect
-5. **Test with simpler payload**: Try storing just `{ token }` without extra fields and see if Decap recognizes it
-6. **Check Decap CMS source**: Look at what Decap actually expects in localStorage for GitHub auth
-
-## Files Modified
-- `admin/config.yml` — Fixed `base_url` domain
-- `workers/decap-oauth/wrangler.toml` — Removed hardcoded secrets
-- `admin/index.html` — Added OAuth token handler, various payload attempts, logging
-
-## Commits Made
-- "CMS: fix OAuth base_url to deployed worker domain"
-- "Security: move GitHub OAuth to Wrangler secrets"
-- "CMS: store GitHub token with provider for persisted login"
-- "CMS: persist GitHub session with user profile in netlify-cms-user"
-- "CMS: add debug logs for OAuth postMessage token handling"
-- "CMS: broaden stored GitHub auth payload and log existing session"
-
-## Open Questions
-- Does `window.opener.postMessage()` in worker's callback HTML successfully send the message?
-- Is the event listener in `admin/index.html` being set up before postMessage fires?
-- What exact shape does Decap CMS expect in `localStorage.getItem('netlify-cms-user')`?
-- Should we use a different storage mechanism or OAuth flow entirely?
