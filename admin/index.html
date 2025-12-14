@@ -24,7 +24,8 @@
             const payload = {
               token: token,
               provider: 'github',
-              login: 'github',
+              backendName: 'github',
+              login: (profile && profile.login) || 'github',
               user: profile ? {
                 login: profile.login,
                 name: profile.name,
@@ -32,8 +33,10 @@
                 html_url: profile.html_url,
               } : undefined,
             };
-            localStorage.setItem('netlify-cms-user', JSON.stringify(payload));
-            console.log('Token stored for Decap (github), reloading...');
+            const value = JSON.stringify(payload);
+            localStorage.setItem('netlify-cms-user', value);
+            sessionStorage.setItem('netlify-cms-user', value); // fallback
+            console.log('[Decap OAuth] stored netlify-cms-user', payload);
             setTimeout(() => window.location.reload(), 200);
           };
 
@@ -56,6 +59,16 @@
       (() => {
         let initialized = false;
         const tryInit = () => {
+          const stored = localStorage.getItem('netlify-cms-user');
+          if (stored) {
+            try {
+              console.log('[Decap OAuth] existing netlify-cms-user', JSON.parse(stored));
+            } catch (e) {
+              console.warn('[Decap OAuth] failed to parse stored user', e);
+            }
+          } else {
+            console.log('[Decap OAuth] no stored user yet');
+          }
           if (initialized) return;
           if (typeof CMS !== 'undefined' && CMS && CMS.init) {
             initialized = true;
