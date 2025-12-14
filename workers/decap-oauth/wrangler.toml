@@ -2,6 +2,3 @@ name = "epoxea-cms"
 main = "src/index.js"
 compatibility_date = "2024-12-13"
 
-[vars]
-GITHUB_CLIENT_ID = "Ov23liRVrbchqD0R72vO"
-GITHUB_CLIENT_SECRET = "c6bc9e993827873fa57d269fa0c62dae8c12f2bc"

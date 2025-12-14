@@ -62,4 +62,12 @@
         "price": 12.99,
         "category": "accessories"
     }
+    ,
+    {
+        "id": "test-product-draft",
+        "name": "Test Product Draft",
+        "description": "Temporary test entry added via CMS flow",
+        "price": 0.01,
+        "category": "testing"
+    }
 ]
