@@ -1,104 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Content Manager</title>
     <link rel="icon" href="/assets/images/logo.png">
-    <script>
-      // Disable auto init; we'll init manually to avoid double mounting.
-      window.CMS_MANUAL_INIT = true;
-    </script>
+    <script src="https://unpkg.com/decap-cms@^3.9.0/dist/decap-cms.js"></script>
   </head>
-  <body>
-    <div id="nc-root"></div>
-    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-    <script>
-      // Handle OAuth token from worker via protocol-based postMessage
-      window.addEventListener('message', (event) => {
-        console.log('[Decap OAuth] postMessage received from', event.origin, 'data:', event.data);
-        
-        // Check if message is authorization protocol
-        if (typeof event.data === 'string' && event.data.startsWith('authorization:github:')) {
-          const parts = event.data.split(':');
-          const status = parts[2];
-          
-          if (status === 'success') {
-            try {
-              // Extract payload after 'authorization:github:success:'
-              const payloadStr = event.data.slice('authorization:github:success:'.length);
-              const payload = JSON.parse(payloadStr);
-              
-              const userData = {
-                auth: {
-                  token: payload.token
-                },
-                user: payload.user
-              };
-              
-              localStorage.setItem('netlify-cms-user', JSON.stringify(userData));
-              sessionStorage.setItem('netlify-cms-user', JSON.stringify(userData));
-              console.log('[Decap OAuth] stored netlify-cms-user:', userData);
-              
-              // Reload to let Decap pick up the token
-              setTimeout(() => window.location.reload(), 200);
-            } catch (err) {
-              console.error('[Decap OAuth] parse error:', err);
-            }
-          }
-        } else if (event.data && (event.data.token || event.data.access_token)) {
-          // Fallback: handle legacy object format
-          console.log('[Decap OAuth] handling legacy token object format');
-          const token = event.data.token || event.data.access_token;
-          const userData = {
-            auth: { token: token },
-            user: event.data.user || { login: 'github' }
-          };
-          localStorage.setItem('netlify-cms-user', JSON.stringify(userData));
-          console.log('[Decap OAuth] stored (legacy):', userData);
-          setTimeout(() => window.location.reload(), 200);
-        } else {
-          console.warn('[Decap OAuth] unknown message format:', event.data);
-        }
-      });
-    </script>
-    <script>
-      // Initialize Decap CMS once (manual init to prevent double mount errors)
-      (() => {
-        let initialized = false;
-        const tryInit = () => {
-          const stored = localStorage.getItem('netlify-cms-user');
-          if (stored) {
-            try {
-              console.log('[Decap OAuth] existing netlify-cms-user', JSON.parse(stored));
-            } catch (e) {
-              console.warn('[Decap OAuth] failed to parse stored user', e);
-            }
-          } else {
-            console.log('[Decap OAuth] no stored user yet');
-          }
-          if (initialized) return;
-          if (typeof CMS !== 'undefined' && CMS && CMS.init) {
-            initialized = true;
-            console.log('Decap CMS found, initializing (manual)...');
-            try {
-              CMS.init();
-              console.log('Decap CMS initialized');
-            } catch (e) {
-              console.error('Error initializing CMS:', e);
-            }
-          }
-        };
-
-        if (document.readyState === 'complete' || document.readyState === 'interactive') {
-          tryInit();
-        } else {
-          document.addEventListener('DOMContentLoaded', tryInit);
-        }
-
-        // Fallback after 1s in case CMS script loads late
-        setTimeout(tryInit, 1000);
-      })();
-    </script>
-  </body>
+  <body></body>
 </html>
