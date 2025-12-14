@@ -40,25 +40,25 @@ export default {
         return new Response(`OAuth Error: ${tokenData.error}`, { status: 400 });
       }
 
-      // Return HTML that stores token and redirects back to admin
-      const html = `<!DOCTYPE html><html><body><script>
-        const token = '${tokenData.access_token}';
-        const origin = window.opener ? window.opener.location.origin : '${url.protocol}//${url.host}';
-        
-        if (window.opener && !window.opener.closed) {
-          // Send token via postMessage
-          window.opener.postMessage({
-            token: token,
-            access_token: token,
-            provider: 'github'
-          }, origin);
-          setTimeout(() => window.close(), 100);
-        } else {
-          // Fallback: store in sessionStorage and redirect
-          sessionStorage.setItem('decap_token', token);
-          window.location.href = origin + '/admin/?token=' + encodeURIComponent(token);
-        }
-      <\/script></body></html>`;
+      // Return HTML that closes window and sends postMessage to opener
+      const token = tokenData.access_token;
+      const html = `<!DOCTYPE html>
+<html>
+<head><title>OAuth Callback</title></head>
+<body>
+<script>
+  const token = '${token}';
+  if (window.opener && !window.opener.closed) {
+    window.opener.postMessage({
+      token: token,
+      access_token: token,
+      provider: 'github'
+    }, '*');
+  }
+  window.close();
+</script>
+</body>
+</html>`;
 
       return new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
     }
