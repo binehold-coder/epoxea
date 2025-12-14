@@ -14,43 +14,51 @@
     <div id="nc-root"></div>
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
     <script>
-      // Handle OAuth token from worker postMessage
+      // Handle OAuth token from worker via protocol-based postMessage
       window.addEventListener('message', (event) => {
-        console.log('[Decap OAuth] postMessage received', event.data);
-        if (event.data && (event.data.token || event.data.access_token)) {
-          const token = event.data.token || event.data.access_token;
-          // Persist token in the shape Decap expects for GitHub OAuth.
-          const saveUser = (profile) => {
-            const payload = {
-              token: token,
-              provider: 'github',
-              backendName: 'github',
-              login: (profile && profile.login) || 'github',
-              user: profile ? {
-                login: profile.login,
-                name: profile.name,
-                avatar_url: profile.avatar_url,
-                html_url: profile.html_url,
-              } : undefined,
-            };
-            const value = JSON.stringify(payload);
-            localStorage.setItem('netlify-cms-user', value);
-            sessionStorage.setItem('netlify-cms-user', value); // fallback
-            console.log('[Decap OAuth] stored netlify-cms-user', payload);
-            setTimeout(() => window.location.reload(), 200);
-          };
-
-          // Try to hydrate user info for better CMS session; fall back to token-only.
-          fetch('https://api.github.com/user', {
-            headers: {
-              'Authorization': `token ${token}`,
-              'Accept': 'application/vnd.github.v3+json',
+        console.log('[Decap OAuth] postMessage received from', event.origin, 'data:', event.data);
+        
+        // Check if message is authorization protocol
+        if (typeof event.data === 'string' && event.data.startsWith('authorization:github:')) {
+          const parts = event.data.split(':');
+          const status = parts[2];
+          
+          if (status === 'success') {
+            try {
+              // Extract payload after 'authorization:github:success:'
+              const payloadStr = event.data.slice('authorization:github:success:'.length);
+              const payload = JSON.parse(payloadStr);
+              
+              const userData = {
+                auth: {
+                  token: payload.token
+                },
+                user: payload.user
+              };
+              
+              localStorage.setItem('netlify-cms-user', JSON.stringify(userData));
+              sessionStorage.setItem('netlify-cms-user', JSON.stringify(userData));
+              console.log('[Decap OAuth] stored netlify-cms-user:', userData);
+              
+              // Reload to let Decap pick up the token
+              setTimeout(() => window.location.reload(), 200);
+            } catch (err) {
+              console.error('[Decap OAuth] parse error:', err);
             }
-          }).then((res) => res.ok ? res.json() : null)
-            .then((profile) => saveUser(profile))
-            .catch(() => saveUser());
+          }
+        } else if (event.data && (event.data.token || event.data.access_token)) {
+          // Fallback: handle legacy object format
+          console.log('[Decap OAuth] handling legacy token object format');
+          const token = event.data.token || event.data.access_token;
+          const userData = {
+            auth: { token: token },
+            user: event.data.user || { login: 'github' }
+          };
+          localStorage.setItem('netlify-cms-user', JSON.stringify(userData));
+          console.log('[Decap OAuth] stored (legacy):', userData);
+          setTimeout(() => window.location.reload(), 200);
         } else {
-          console.warn('[Decap OAuth] postMessage without token/access_token', event.data);
+          console.warn('[Decap OAuth] unknown message format:', event.data);
         }
       });
     </script>

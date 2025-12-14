@@ -40,8 +40,25 @@ export default {
         return new Response(`OAuth Error: ${tokenData.error}`, { status: 400 });
       }
 
-      // Return HTML that shows the token (for debug), sends postMessage, and delays auto-close
       const token = tokenData.access_token;
+
+      // Fetch user profile from GitHub API
+      let userProfile = { login: 'github-user', name: 'GitHub User' };
+      try {
+        const userRes = await fetch('https://api.github.com/user', {
+          headers: {
+            'Authorization': `token ${token}`,
+            'Accept': 'application/vnd.github.v3+json',
+          },
+        });
+        if (userRes.ok) {
+          userProfile = await userRes.json();
+        }
+      } catch (e) {
+        console.error('[Worker] Failed to fetch user profile:', e);
+      }
+
+      // Return HTML that shows token, fetches user, and sends postMessage with protocol format
       const html = `<!DOCTYPE html>
 <html>
 <head><title>OAuth Callback</title></head>
@@ -53,13 +70,34 @@ export default {
   <p>If the window does not close, you can close it manually after 5 seconds.</p>
   <script>
     const token = '${token}';
+    const userProfile = ${JSON.stringify(userProfile)};
+    
+    console.log('[Worker] window.opener:', window.opener);
+    console.log('[Worker] window.location.origin:', window.location.origin);
+    
     if (window.opener && !window.opener.closed) {
-      window.opener.postMessage({
+      const payload = JSON.stringify({
         token: token,
-        access_token: token,
-        provider: 'github'
-      }, '*');
+        user: {
+          login: userProfile.login,
+          name: userProfile.name,
+          avatar_url: userProfile.avatar_url,
+          html_url: userProfile.html_url
+        }
+      });
+      const message = 'authorization:github:success:' + payload;
+      
+      console.log('[Worker] Sending message to opener:', message);
+      try {
+        window.opener.postMessage(message, window.location.origin);
+        console.log('[Worker] postMessage sent successfully');
+      } catch (e) {
+        console.error('[Worker] postMessage failed:', e);
+        window.opener.postMessage(message, '*'); // fallback
+      }
       setTimeout(() => window.close(), 5000);
+    } else {
+      console.error('[Worker] Opener null or closed');
     }
   <\/script>
 </body>
