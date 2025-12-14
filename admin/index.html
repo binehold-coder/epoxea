@@ -18,11 +18,12 @@
       window.addEventListener('message', (event) => {
         if (event.data && (event.data.token || event.data.access_token)) {
           const token = event.data.token || event.data.access_token;
+          // Decap expects provider set for GitHub backend; store minimal auth payload.
           localStorage.setItem('netlify-cms-user', JSON.stringify({
             token: token,
-            backend: 'github'
+            provider: 'github'
           }));
-          console.log('Token stored from postMessage, reloading...');
+          console.log('Token stored from postMessage (github), reloading...');
           setTimeout(() => window.location.reload(), 200);
         }
       });
