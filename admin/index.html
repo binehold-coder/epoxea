@@ -9,5 +9,19 @@
   <body>
     <div id="nc-root"></div>
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <script>
+      // Handle OAuth token from worker postMessage
+      window.addEventListener('message', (event) => {
+        if (event.data && (event.data.token || event.data.access_token)) {
+          const token = event.data.token || event.data.access_token;
+          localStorage.setItem('netlify-cms-user', JSON.stringify({
+            token: token,
+            backend: 'github'
+          }));
+          console.log('Token stored from postMessage, reloading...');
+          setTimeout(() => window.location.reload(), 200);
+        }
+      });
+    </script>
   </body>
 </html>

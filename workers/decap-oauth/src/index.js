@@ -1,28 +1,10 @@
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const callbackUrl = `${url.protocol}//${url.host}/callback`;
 
-    // Helper to build redirect URI consistently
-    const callbackUrl = `${url.protocol}//${url.host}/api/oauth/callback`;
-
-    const authPaths = new Set([
-      '/api/oauth/authorize',
-      '/api/oauth/authorize/',
-      '/oauth/authorize',
-      '/oauth/authorize/',
-    ]);
-    const callbackPaths = new Set([
-      '/api/oauth/callback',
-      '/api/oauth/callback/',
-      '/oauth/callback',
-      '/oauth/callback/',
-    ]);
-
-    const isAuth = authPaths.has(url.pathname);
-    const isCallback = callbackPaths.has(url.pathname);
-
-    // Step 1: start OAuth — redirect user to GitHub auth page
-    if (isAuth) {
+    // OAuth authorize endpoint
+    if (url.pathname === '/auth') {
       const authorizeUrl = new URL('https://github.com/login/oauth/authorize');
       authorizeUrl.searchParams.set('client_id', env.GITHUB_CLIENT_ID);
       authorizeUrl.searchParams.set('redirect_uri', callbackUrl);
@@ -30,14 +12,14 @@ export default {
       return Response.redirect(authorizeUrl.toString(), 302);
     }
 
-    // Only handle OAuth callback route
-    if (isCallback) {
+    // OAuth callback endpoint
+    if (url.pathname === '/callback') {
       const code = url.searchParams.get('code');
       if (!code) {
         return new Response('Missing code', { status: 400 });
       }
 
-      // Exchange code for access token
+      // Exchange code for token
       const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
         method: 'POST',
         headers: {
@@ -55,26 +37,30 @@ export default {
       const tokenData = await tokenResponse.json();
 
       if (tokenData.error) {
-        return new Response(`Error: ${tokenData.error}`, { status: 400 });
+        return new Response(`OAuth Error: ${tokenData.error}`, { status: 400 });
       }
 
-      // Return the token to Decap CMS via postMessage. Close only if window was opened by the app.
+      // Return HTML that stores token and redirects back to admin
       const html = `<!DOCTYPE html><html><body><script>
-        (function() {
-          if (window.opener && !window.opener.closed) {
-            window.opener.postMessage({
-              access_token: '${tokenData.access_token}',
-              provider: 'github',
-              token: '${tokenData.access_token}'
-            }, '*');
-            setTimeout(() => window.close(), 100);
-          } else {
-            document.write('Token received. You can close this window.');
-          }
-        })();
+        const token = '${tokenData.access_token}';
+        const origin = window.opener ? window.opener.location.origin : '${url.protocol}//${url.host}';
+        
+        if (window.opener && !window.opener.closed) {
+          // Send token via postMessage
+          window.opener.postMessage({
+            token: token,
+            access_token: token,
+            provider: 'github'
+          }, origin);
+          setTimeout(() => window.close(), 100);
+        } else {
+          // Fallback: store in sessionStorage and redirect
+          sessionStorage.setItem('decap_token', token);
+          window.location.href = origin + '/admin/?token=' + encodeURIComponent(token);
+        }
       <\/script></body></html>`;
 
-      return new Response(html, { headers: { 'Content-Type': 'text/html' } });
+      return new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
     }
 
     return new Response('Not Found', { status: 404 });
