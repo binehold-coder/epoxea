@@ -61,12 +61,14 @@ export default {
       // Return the token to Decap CMS via postMessage. Close only if window was opened by the app.
       const html = `<!DOCTYPE html><html><body><script>
         (function() {
-          const target = '*';
           if (window.opener && !window.opener.closed) {
-            window.opener.postMessage({ token: '${tokenData.access_token}' }, target);
-            setTimeout(() => window.close(), 50);
+            window.opener.postMessage({
+              access_token: '${tokenData.access_token}',
+              provider: 'github',
+              token: '${tokenData.access_token}'
+            }, '*');
+            setTimeout(() => window.close(), 100);
           } else {
-            // Fallback: show token if window not opened by app
             document.write('Token received. You can close this window.');
           }
         })();
