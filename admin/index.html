@@ -18,13 +18,33 @@
       window.addEventListener('message', (event) => {
         if (event.data && (event.data.token || event.data.access_token)) {
           const token = event.data.token || event.data.access_token;
-          // Decap expects provider set for GitHub backend; store minimal auth payload.
-          localStorage.setItem('netlify-cms-user', JSON.stringify({
-            token: token,
-            provider: 'github'
-          }));
-          console.log('Token stored from postMessage (github), reloading...');
-          setTimeout(() => window.location.reload(), 200);
+          // Persist token in the shape Decap expects for GitHub OAuth.
+          const saveUser = (profile) => {
+            const payload = {
+              token: token,
+              provider: 'github',
+              login: 'github',
+              user: profile ? {
+                login: profile.login,
+                name: profile.name,
+                avatar_url: profile.avatar_url,
+                html_url: profile.html_url,
+              } : undefined,
+            };
+            localStorage.setItem('netlify-cms-user', JSON.stringify(payload));
+            console.log('Token stored for Decap (github), reloading...');
+            setTimeout(() => window.location.reload(), 200);
+          };
+
+          // Try to hydrate user info for better CMS session; fall back to token-only.
+          fetch('https://api.github.com/user', {
+            headers: {
+              'Authorization': `token ${token}`,
+              'Accept': 'application/vnd.github.v3+json',
+            }
+          }).then((res) => res.ok ? res.json() : null)
+            .then((profile) => saveUser(profile))
+            .catch(() => saveUser());
         }
       });
     </script>
