@@ -16,6 +16,7 @@
     <script>
       // Handle OAuth token from worker postMessage
       window.addEventListener('message', (event) => {
+        console.log('[Decap OAuth] postMessage received', event.data);
         if (event.data && (event.data.token || event.data.access_token)) {
           const token = event.data.token || event.data.access_token;
           // Persist token in the shape Decap expects for GitHub OAuth.
@@ -45,6 +46,8 @@
           }).then((res) => res.ok ? res.json() : null)
             .then((profile) => saveUser(profile))
             .catch(() => saveUser());
+        } else {
+          console.warn('[Decap OAuth] postMessage without token/access_token', event.data);
         }
       });
     </script>
