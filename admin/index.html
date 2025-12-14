@@ -6,19 +6,29 @@
     <title>Content Manager</title>
     <link rel="icon" href="/assets/images/logo.png">
     <style>
-      html, body {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-      }
-      #nc-root {
-        display: flex;
-        height: 100%;
-      }
+      html, body { margin: 0; padding: 0; height: 100%; }
+      #nc-root { display: flex; height: 100%; }
     </style>
   </head>
   <body>
     <div id="nc-root"></div>
+    <script>
+      // Listen for token from OAuth window
+      window.addEventListener('message', (e) => {
+        if (e.data && e.data.token) {
+          console.log('[Admin] Got token from OAuth:', e.data.token);
+          // Store in format Decap expects
+          localStorage.setItem('gh_token', e.data.token);
+          window.location.reload();
+        }
+      });
+      
+      // Check if we have token from previous session
+      const stored = localStorage.getItem('gh_token');
+      if (stored) {
+        console.log('[Admin] Found stored token');
+      }
+    </script>
     <script src="https://unpkg.com/decap-cms@^3.9.0/dist/decap-cms.js"></script>
   </body>
 </html>
