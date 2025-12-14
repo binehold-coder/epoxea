@@ -2,7 +2,7 @@ backend:
   name: github
   repo: binehold-coder/epoxea
   branch: main
-  base_url: https://epoxea-cms.binehold.workers.dev
+  base_url: https://epoxea.binehold.workers.dev
   auth_endpoint: /auth
   commit_messages:
     create: 'Create {{collection}} "{{slug}}"'
