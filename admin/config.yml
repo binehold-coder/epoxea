@@ -2,8 +2,7 @@ backend:
   name: github
   repo: binehold-coder/epoxea
   branch: main
-  base_url: https://epoxea-cms.binehold.workers.dev/api
-  auth_endpoint: oauth/authorize
+  app_id: Ov23liRVrbchqD0R72vO
   commit_messages:
     create: 'Create {{collection}} "{{slug}}"'
     update: 'Update {{collection}} "{{slug}}"'
