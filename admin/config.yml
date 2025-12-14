@@ -3,7 +3,7 @@ backend:
   repo: binehold-coder/epoxea
   branch: main
   base_url: https://epoxea-cms.binehold.workers.dev
-  auth_endpoint: /
+  auth_endpoint: /auth
   commit_messages:
     create: 'Create {{collection}} "{{slug}}"'
     update: 'Update {{collection}} "{{slug}}"'

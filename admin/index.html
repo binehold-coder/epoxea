@@ -11,24 +11,40 @@
     </style>
   </head>
   <body>
+  <body>
     <div id="nc-root"></div>
     <script>
-      // Listen for token from OAuth window
-      window.addEventListener('message', (e) => {
-        if (e.data && e.data.token) {
-          console.log('[Admin] Got token from OAuth:', e.data.token);
-          // Store in format Decap expects
-          localStorage.setItem('gh_token', e.data.token);
-          window.location.reload();
-        }
-      });
+      console.log('[Admin] Initializing...');
       
-      // Check if we have token from previous session
-      const stored = localStorage.getItem('gh_token');
-      if (stored) {
-        console.log('[Admin] Found stored token');
+      // Check URL for token from OAuth redirect
+      const url = new URL(window.location);
+      const tokenFromUrl = url.searchParams.get('token');
+      
+      if (tokenFromUrl) {
+        console.log('[Admin] Token from URL detected, storing...');
+        // Store in Decap's expected format
+        localStorage.setItem('netlify-cms-user', JSON.stringify({
+          token: tokenFromUrl,
+          backend: 'github'
+        }));
+        // Clean URL
+        window.history.replaceState({}, document.title, '/admin/');
       }
+      
+      // Check if we have existing session
+      const existing = localStorage.getItem('netlify-cms-user');
+      if (existing) {
+        try {
+          const user = JSON.parse(existing);
+          console.log('[Admin] Session found, user:', user.backend);
+        } catch (e) {
+          console.error('[Admin] Failed to parse session');
+        }
+      }
+      
+      console.log('[Admin] Loading Decap CMS...');
     </script>
     <script src="https://unpkg.com/decap-cms@^3.9.0/dist/decap-cms.js"></script>
+  </body>
   </body>
 </html>

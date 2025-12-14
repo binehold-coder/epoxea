@@ -4,6 +4,12 @@ export default {
     
     console.log(`[Worker] ${request.method} ${url.pathname}${url.search}`);
 
+    // Only handle /auth path, ignore everything else
+    if (url.pathname !== '/auth') {
+      console.log('[Worker] Non-auth path, ignoring');
+      return new Response('Not Found', { status: 404 });
+    }
+
     // Handle root or any path — log everything
     const code = url.searchParams.get('code');
     const error = url.searchParams.get('error');
@@ -17,7 +23,8 @@ export default {
 
     // If no code, redirect to GitHub
     if (!code) {
-      const redirectUri = `${url.protocol}//${url.host}${url.pathname}`;
+      const baseUrl = `${url.protocol}//${url.host}`;
+      const redirectUri = `${baseUrl}/auth`;
       
       const authorizeUrl = new URL('https://github.com/login/oauth/authorize');
       authorizeUrl.searchParams.set('client_id', env.GITHUB_CLIENT_ID);
@@ -30,7 +37,8 @@ export default {
 
     // We have code, exchange for token
     console.log('[Worker] Exchanging code for token');
-    const redirectUri = `${url.protocol}//${url.host}${url.pathname}`;
+    const baseUrl = `${url.protocol}//${url.host}`;
+    const redirectUri = `${baseUrl}/auth`;
     
     const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',
@@ -59,34 +67,12 @@ export default {
     const token = tokenData.access_token;
     console.log('[Worker] Token received');
 
-    // Return HTML with token that closes after storing
-    const html = `<!DOCTYPE html>
-<html>
-<head><title>OAuth Success</title></head>
-<body>
-  <h2>OAuth Successful</h2>
-  <p>Token received. Closing in 3 seconds...</p>
-  <script>
-    const token = '${token}';
-    console.log('[Callback] Token:', token);
+    // Redirect back to admin with token in URL
+    // Admin is hosted on Netlify Pages at epoxea.pages.dev, not on this worker
+    const adminUrl = new URL('https://epoxea.pages.dev/admin/');
+    adminUrl.searchParams.set('token', token);
     
-    // Store token
-    localStorage.setItem('gh_token', token);
-    console.log('[Callback] Token stored in localStorage');
-    
-    // Close window and signal parent
-    if (window.opener) {
-      window.opener.postMessage({ token: token }, '*');
-      console.log('[Callback] Sent postMessage to opener');
-    }
-    
-    setTimeout(() => window.close(), 3000);
-  </script>
-</body>
-</html>`;
-
-    return new Response(html, {
-      headers: { 'Content-Type': 'text/html; charset=utf-8' },
-    });
+    console.log('[Worker] Redirecting to admin with token');
+    return Response.redirect(adminUrl.toString(), 302);
   },
 };
