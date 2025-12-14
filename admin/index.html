@@ -23,5 +23,30 @@
         }
       });
     </script>
+      <script>
+        // Initialize Decap CMS after scripts load
+        if (typeof CMS !== 'undefined' && CMS && CMS.init) {
+          console.log('Decap CMS found, initializing...');
+          try {
+            CMS.init();
+            console.log('Decap CMS initialized');
+          } catch (e) {
+            console.error('Error initializing CMS:', e);
+          }
+        } else {
+          console.log('Waiting for CMS...');
+          document.addEventListener('DOMContentLoaded', () => {
+            if (typeof CMS !== 'undefined' && CMS && CMS.init) {
+              console.log('CMS loaded on DOMContentLoaded, initializing...');
+              try {
+                CMS.init();
+                console.log('CMS initialized');
+              } catch (e) {
+                console.error('Error:', e);
+              }
+            }
+          });
+        }
+      </script>
   </body>
 </html>

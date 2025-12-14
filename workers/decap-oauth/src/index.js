@@ -40,23 +40,28 @@ export default {
         return new Response(`OAuth Error: ${tokenData.error}`, { status: 400 });
       }
 
-      // Return HTML that closes window and sends postMessage to opener
+      // Return HTML that shows the token (for debug), sends postMessage, and delays auto-close
       const token = tokenData.access_token;
       const html = `<!DOCTYPE html>
 <html>
 <head><title>OAuth Callback</title></head>
-<body>
-<script>
-  const token = '${token}';
-  if (window.opener && !window.opener.closed) {
-    window.opener.postMessage({
-      token: token,
-      access_token: token,
-      provider: 'github'
-    }, '*');
-  }
-  window.close();
-</script>
+<body style="font-family: sans-serif; padding: 16px;">
+  <h2>OAuth successful</h2>
+  <p>This window will close automatically in 5 seconds after sending the token to the opener.</p>
+  <p><strong>Token (debug, do not share):</strong></p>
+  <code style="display:block; word-break:break-all; padding:8px; background:#f5f5f5;">${token}</code>
+  <p>If the window does not close, you can close it manually after 5 seconds.</p>
+  <script>
+    const token = '${token}';
+    if (window.opener && !window.opener.closed) {
+      window.opener.postMessage({
+        token: token,
+        access_token: token,
+        provider: 'github'
+      }, '*');
+      setTimeout(() => window.close(), 5000);
+    }
+  <\/script>
 </body>
 </html>`;
 
