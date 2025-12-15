@@ -40,7 +40,61 @@
       const origOpen = window.open;
       window.open = function(url, name, specs) {
         LOG.warn(`🔴 window.open called! URL: ${url.substring(0, 150)}`);
+        LOG.warn(`Attempted OAuth because token in localStorage failed validation`);
+        const stored = localStorage.getItem('netlify-cms-user');
+        if (stored) {
+          try {
+            const user = JSON.parse(stored);
+            LOG.warn(`Current token in storage:`, { tokenLen: user.token?.length, backend: user.backend });
+          } catch (e) {
+            LOG.error('Could not parse current session', e);
+          }
+        }
         return origOpen.call(window, url, name, specs);
+      };
+      
+      // ===== HOOK INTO localStorage to see what Decap does =====
+      const origSetItem = Storage.prototype.setItem;
+      Storage.prototype.setItem = function(key, value) {
+        if (key === 'netlify-cms-user') {
+          try {
+            const parsed = JSON.parse(value);
+            LOG.info(`[STORAGE] setItem("netlify-cms-user", ...) with:`, { 
+              tokenLen: parsed.token?.length, 
+              keys: Object.keys(parsed) 
+            });
+          } catch (e) {
+            LOG.info(`[STORAGE] setItem("netlify-cms-user", "${value.substring(0, 50)}...")`);
+          }
+        }
+        return origSetItem.call(this, key, value);
+      };
+      
+      const origGetItem = Storage.prototype.getItem;
+      Storage.prototype.getItem = function(key) {
+        const result = origGetItem.call(this, key);
+        if (key === 'netlify-cms-user' && result) {
+          try {
+            const parsed = JSON.parse(result);
+            LOG.info(`[STORAGE] getItem("netlify-cms-user") returned:`, { 
+              tokenLen: parsed.token?.length, 
+              keys: Object.keys(parsed),
+              login: parsed.login 
+            });
+          } catch (e) {
+            // ignore
+          }
+        }
+        return result;
+      };
+      
+      const origRemoveItem = Storage.prototype.removeItem;
+      Storage.prototype.removeItem = function(key) {
+        if (key === 'netlify-cms-user') {
+          LOG.warn('🔴 [STORAGE] removeItem("netlify-cms-user") - SESSION CLEARED BY DECAP!');
+          console.trace('[TRACE] removeItem called from:');
+        }
+        return origRemoveItem.call(this, key);
       };
       
       // ===== 1. CHECK URL TOKEN =====

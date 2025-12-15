@@ -67,13 +67,18 @@ export default {
 
     const token = tokenData.access_token;
     console.log('[Worker] Token received');
+    console.log('[Worker] Token length:', token.length);
+    console.log('[Worker] Token preview:', token.substring(0, 50) + '...');
 
     // Redirect back to admin with token in URL
     // Admin is hosted on Netlify Pages at epoxea.pages.dev, not on this worker
     const adminUrl = new URL('https://epoxea.pages.dev/admin/');
     adminUrl.searchParams.set('token', token);
     
-    console.log('[Worker] Redirecting to admin with token');
-    return Response.redirect(adminUrl.toString(), 302);
+    const finalUrl = adminUrl.toString();
+    console.log('[Worker] Final redirect URL length:', finalUrl.length);
+    console.log('[Worker] Token in URL length:', finalUrl.match(/token=([^&]*)/)?.[1]?.length || 'NOT FOUND');
+    console.log('[Worker] Redirecting to:', finalUrl.substring(0, 150) + '...');
+    return Response.redirect(finalUrl, 302);
   },
 };
