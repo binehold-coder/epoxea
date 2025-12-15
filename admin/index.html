@@ -75,15 +75,44 @@
       }
       
       // ===== 3. LOAD DECAP CMS =====
-      LOG.info('=== LOADING DECAP CMS ===');
+      LOG.info('=== PREPARE DECAP CMS (MANUAL INIT) ===');
+
+      // Use manual init to ensure CMS reads stored token and doesn't auto-trigger login
+      window.CMS_MANUAL_INIT = true;
+      
+      // Provide config explicitly
+      window.CMS_CONFIG = {
+        backend: {
+          name: 'github',
+          repo: 'binehold-coder/epoxea',
+          branch: 'main',
+          base_url: 'https://epoxea-cms.binehold.workers.dev',
+          auth_endpoint: '/auth'
+        },
+        media_folder: 'assets/images',
+        public_folder: '/assets/images'
+      };
+
+      LOG.info('CMS config prepared');
       
       // Check session after Decap loads
       window.addEventListener('load', () => {
         LOG.info('WINDOW LOAD EVENT');
-        setTimeout(() => {
-          const session = localStorage.getItem('netlify-cms-user');
-          LOG.info('Session after Decap load', { has_session: !!session });
-        }, 500);
+        const session = localStorage.getItem('netlify-cms-user');
+        LOG.info('Session at window load', { has_session: !!session });
+        
+        try {
+          // Initialize CMS manually
+          LOG.info('Calling CMS.init');
+          if (window.CMS && typeof window.CMS.init === 'function') {
+            window.CMS.init();
+            LOG.info('CMS.init called');
+          } else {
+            LOG.warn('CMS.init not available yet');
+          }
+        } catch (e) {
+          LOG.error('Error during CMS.init', e);
+        }
       });
       
     </script>
