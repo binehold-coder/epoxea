@@ -13,17 +13,35 @@
   <body>
     <div id="nc-root"></div>
     <script>
-      // ===== SIMPLE DEBUG LOGGING =====
+      // ===== COMPREHENSIVE DEBUG LOGGING =====
+      window.DEBUG_LOG = [];
       const LOG = {
         info: (msg, data) => {
           const out = data ? `${msg} | ${JSON.stringify(data)}` : msg;
-          console.log(`[Admin] ${out}`);
+          const full = `[Admin] ${out}`;
+          console.log(full);
+          window.DEBUG_LOG.push({ time: new Date().toISOString(), level: 'INFO', msg: full });
         },
-        error: (msg, err) => console.error(`[Admin ERROR] ${msg}`, err),
-        warn: (msg) => console.warn(`[Admin WARN] ${msg}`),
+        error: (msg, err) => {
+          const full = `[Admin ERROR] ${msg}`;
+          console.error(full, err);
+          window.DEBUG_LOG.push({ time: new Date().toISOString(), level: 'ERROR', msg: full, err: String(err) });
+        },
+        warn: (msg) => {
+          const full = `[Admin WARN] ${msg}`;
+          console.warn(full);
+          window.DEBUG_LOG.push({ time: new Date().toISOString(), level: 'WARN', msg: full });
+        },
       };
       
       LOG.info('=== PAGE LOAD START ===');
+      
+      // ===== HOOK INTO window.open (OAuth popups) =====
+      const origOpen = window.open;
+      window.open = function(url, name, specs) {
+        LOG.warn(`🔴 window.open called! URL: ${url.substring(0, 150)}`);
+        return origOpen.call(window, url, name, specs);
+      };
       
       // ===== 1. CHECK URL TOKEN =====
       const url = new URL(window.location);
@@ -48,7 +66,6 @@
           LOG.error('Failed to store token', e);
         }
         
-        // Clean URL
         window.history.replaceState({}, document.title, '/admin/');
         LOG.info('URL cleaned');
       }
@@ -74,17 +91,27 @@
         LOG.warn('NO SESSION FOUND in localStorage');
       }
       
-      // ===== 3. LOAD DECAP CMS =====
-      LOG.info('=== USE DEFAULT CMS AUTO INIT ===');
+      // ===== 3. MONITOR STORAGE CHANGES =====
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'netlify-cms-user') {
+          LOG.warn(`STORAGE CHANGED: netlify-cms-user modified externally`);
+        }
+      });
       
-      // Check session after Decap loads
+      LOG.info('=== LOADING DECAP CMS ===');
+      
       window.addEventListener('load', () => {
         LOG.info('WINDOW LOAD EVENT');
         const session = localStorage.getItem('netlify-cms-user');
         LOG.info('Session at window load', { has_session: !!session });
         
-        // Let Decap auto-initialize using admin/config.yml
-        LOG.info('Decap will auto init using admin/config.yml');
+        // Print summary after 3 sec
+        setTimeout(() => {
+          LOG.info('=== DEBUG LOG EXPORT ===');
+          console.log('Copy this to send logs: ');
+          console.log(JSON.stringify(window.DEBUG_LOG, null, 2));
+          LOG.info('Run: window.DEBUG_LOG to see all logs');
+        }, 3000);
       });
       
     </script>
