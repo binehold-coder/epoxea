@@ -37,11 +37,15 @@
       LOG.info('=== PAGE LOAD START ===');
       
       // ===== CRITICAL: Log full URL immediately =====
-      LOG.warn('🔍 CRITICAL DEBUG INFO:');
-      LOG.warn('Full URL:', window.location.href);
-      LOG.warn('Search params:', window.location.search);
-      LOG.warn('Hash:', window.location.hash);
-      LOG.warn('Hostname:', window.location.hostname);
+      console.log('═══ CRITICAL URL DEBUG ═══');
+      console.log('Full URL:', window.location.href);
+      console.log('Search:', window.location.search);
+      console.log('Hash:', window.location.hash);
+      console.log('Hostname:', window.location.hostname);
+      LOG.warn('Full URL: ' + window.location.href);
+      LOG.warn('Search params: ' + window.location.search);
+      LOG.warn('Hash: ' + window.location.hash);
+      LOG.warn('Hostname: ' + window.location.hostname);
       
       // ===== HOOK INTO window.open (OAuth popups) =====
       const origOpen = window.open;
