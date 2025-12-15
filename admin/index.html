@@ -50,21 +50,50 @@
       
       if (tokenFromUrl) {
         LOG.info('TOKEN FOUND IN URL - STORING');
-        const storedUser = {
-          token: tokenFromUrl,
-          backend: 'github',
-          backendName: 'github',
-          login: 'github',
-          isLoggedIn: true,
-          timestamp: new Date().toISOString()
-        };
         
-        try {
+        // Fetch user info to enrich session
+        fetch(`https://api.github.com/user`, {
+          headers: { 'Authorization': `token ${tokenFromUrl}` }
+        })
+        .then(r => r.json())
+        .then(userInfo => {
+          const storedUser = {
+            token: tokenFromUrl,
+            backend: 'github',
+            backendName: 'github',
+            login: userInfo.login || 'github',
+            user: {
+              login: userInfo.login,
+              id: userInfo.id,
+              avatar_url: userInfo.avatar_url,
+              name: userInfo.name || userInfo.login
+            },
+            email: userInfo.email,
+            isLoggedIn: true,
+            timestamp: new Date().toISOString()
+          };
+          
+          try {
+            localStorage.setItem('netlify-cms-user', JSON.stringify(storedUser));
+            LOG.info('STORED enriched session', { login: userInfo.login, keys: Object.keys(storedUser) });
+          } catch (e) {
+            LOG.error('Failed to store enriched token', e);
+          }
+        })
+        .catch(e => {
+          LOG.error('Failed to fetch user info', e);
+          // Fall back to simple storage
+          const storedUser = {
+            token: tokenFromUrl,
+            backend: 'github',
+            backendName: 'github',
+            login: 'github',
+            isLoggedIn: true,
+            timestamp: new Date().toISOString()
+          };
           localStorage.setItem('netlify-cms-user', JSON.stringify(storedUser));
-          LOG.info('STORED in localStorage', { keys: Object.keys(storedUser) });
-        } catch (e) {
-          LOG.error('Failed to store token', e);
-        }
+          LOG.info('STORED fallback session');
+        });
         
         window.history.replaceState({}, document.title, '/admin/');
         LOG.info('URL cleaned');
