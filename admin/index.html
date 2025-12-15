@@ -13,7 +13,7 @@
   <body>
     <div id="nc-root"></div>
     <script>
-      // ===== DEBUG LOGGING =====
+      // ===== SIMPLE DEBUG LOGGING =====
       const LOG = {
         info: (msg, data) => {
           const out = data ? `${msg} | ${JSON.stringify(data)}` : msg;
@@ -74,10 +74,10 @@
         LOG.warn('NO SESSION FOUND in localStorage');
       }
       
-      // ===== 3. CHECK DECAP READINESS =====
+      // ===== 3. LOAD DECAP CMS =====
       LOG.info('=== LOADING DECAP CMS ===');
       
-      // Log what Decap sees when it loads
+      // Check session after Decap loads
       window.addEventListener('load', () => {
         LOG.info('WINDOW LOAD EVENT');
         setTimeout(() => {
@@ -85,16 +85,6 @@
           LOG.info('Session after Decap load', { has_session: !!session });
         }, 500);
       });
-      
-      // Monitor for Decap readiness
-      const origLog = console.log;
-      console.log = function(...args) {
-        const msg = args.join(' ');
-        if (msg.includes('decap-cms') || msg.includes('CMS') || msg.includes('logged')) {
-          LOG.info(`DECAP: ${msg}`);
-        }
-        origLog.apply(console, args);
-      };
       
     </script>
     <script src="https://unpkg.com/decap-cms@^3.9.0/dist/decap-cms.js"></script>
