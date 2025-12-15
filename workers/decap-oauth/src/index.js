@@ -29,7 +29,8 @@ export default {
       const authorizeUrl = new URL('https://github.com/login/oauth/authorize');
       authorizeUrl.searchParams.set('client_id', env.GITHUB_CLIENT_ID);
       authorizeUrl.searchParams.set('redirect_uri', redirectUri);
-      authorizeUrl.searchParams.set('scope', 'repo');
+      // Use narrower scope to reduce rate-limit triggers when possible
+      authorizeUrl.searchParams.set('scope', 'public_repo');
       
       console.log('[Worker] Redirecting to GitHub. Redirect URI:', redirectUri);
       return Response.redirect(authorizeUrl.toString(), 302);

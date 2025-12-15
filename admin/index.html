@@ -13,37 +13,90 @@
   <body>
     <div id="nc-root"></div>
     <script>
-      console.log('[Admin] Initializing...');
+      // ===== DEBUG LOGGING =====
+      const LOG = {
+        info: (msg, data) => {
+          const out = data ? `${msg} | ${JSON.stringify(data)}` : msg;
+          console.log(`[Admin] ${out}`);
+        },
+        error: (msg, err) => console.error(`[Admin ERROR] ${msg}`, err),
+        warn: (msg) => console.warn(`[Admin WARN] ${msg}`),
+      };
       
-      // Check URL for token from OAuth redirect
+      LOG.info('=== PAGE LOAD START ===');
+      
+      // ===== 1. CHECK URL TOKEN =====
       const url = new URL(window.location);
       const tokenFromUrl = url.searchParams.get('token');
+      LOG.info('URL params', { has_token: !!tokenFromUrl, token_len: tokenFromUrl?.length || 0 });
       
       if (tokenFromUrl) {
-        console.log('[Admin] Token from URL detected, storing...');
-        // Store in Decap's expected format
-        localStorage.setItem('netlify-cms-user', JSON.stringify({
+        LOG.info('TOKEN FOUND IN URL - STORING');
+        const storedUser = {
           token: tokenFromUrl,
-          backend: 'github'
-        }));
+          backend: 'github',
+          backendName: 'github',
+          login: 'github',
+          isLoggedIn: true,
+          timestamp: new Date().toISOString()
+        };
+        
+        try {
+          localStorage.setItem('netlify-cms-user', JSON.stringify(storedUser));
+          LOG.info('STORED in localStorage', { keys: Object.keys(storedUser) });
+        } catch (e) {
+          LOG.error('Failed to store token', e);
+        }
+        
         // Clean URL
         window.history.replaceState({}, document.title, '/admin/');
+        LOG.info('URL cleaned');
       }
       
-      // Check if we have existing session
+      // ===== 2. CHECK EXISTING SESSION =====
+      LOG.info('Checking existing localStorage');
       const existing = localStorage.getItem('netlify-cms-user');
+      
       if (existing) {
         try {
           const user = JSON.parse(existing);
-          console.log('[Admin] Session found, user:', user.backend);
+          LOG.info('SESSION FOUND', { 
+            keys: Object.keys(user), 
+            backend: user.backend || user.backendName,
+            isLoggedIn: user.isLoggedIn,
+            tokenLen: user.token?.length || 0
+          });
         } catch (e) {
-          console.error('[Admin] Failed to parse session');
+          LOG.error('Failed to parse session', e);
+          localStorage.removeItem('netlify-cms-user');
         }
+      } else {
+        LOG.warn('NO SESSION FOUND in localStorage');
       }
       
-      console.log('[Admin] Loading Decap CMS...');
+      // ===== 3. CHECK DECAP READINESS =====
+      LOG.info('=== LOADING DECAP CMS ===');
+      
+      // Log what Decap sees when it loads
+      window.addEventListener('load', () => {
+        LOG.info('WINDOW LOAD EVENT');
+        setTimeout(() => {
+          const session = localStorage.getItem('netlify-cms-user');
+          LOG.info('Session after Decap load', { has_session: !!session });
+        }, 500);
+      });
+      
+      // Monitor for Decap readiness
+      const origLog = console.log;
+      console.log = function(...args) {
+        const msg = args.join(' ');
+        if (msg.includes('decap-cms') || msg.includes('CMS') || msg.includes('logged')) {
+          LOG.info(`DECAP: ${msg}`);
+        }
+        origLog.apply(console, args);
+      };
+      
     </script>
     <script src="https://unpkg.com/decap-cms@^3.9.0/dist/decap-cms.js"></script>
-  </body>
   </body>
 </html>
