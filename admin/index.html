@@ -36,6 +36,13 @@
       
       LOG.info('=== PAGE LOAD START ===');
       
+      // ===== CRITICAL: Log full URL immediately =====
+      LOG.warn('🔍 CRITICAL DEBUG INFO:');
+      LOG.warn('Full URL:', window.location.href);
+      LOG.warn('Search params:', window.location.search);
+      LOG.warn('Hash:', window.location.hash);
+      LOG.warn('Hostname:', window.location.hostname);
+      
       // ===== HOOK INTO window.open (OAuth popups) =====
       const origOpen = window.open;
       window.open = function(url, name, specs) {
@@ -101,6 +108,12 @@
       const url = new URL(window.location);
       const tokenFromUrl = url.searchParams.get('token');
       LOG.info('URL params', { has_token: !!tokenFromUrl, token_len: tokenFromUrl?.length || 0 });
+      
+      if (!tokenFromUrl) {
+        LOG.error('🔴 NO TOKEN IN URL! Expected token param after OAuth redirect');
+      } else {
+        LOG.warn('🟢 TOKEN IN URL DETECTED!', { len: tokenFromUrl.length, preview: tokenFromUrl.substring(0, 30) });
+      }
       
       if (tokenFromUrl) {
         LOG.info('TOKEN FOUND IN URL - STORING');
