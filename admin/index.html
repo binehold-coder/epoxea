@@ -37,15 +37,33 @@
       LOG.info('=== PAGE LOAD START ===');
       
       // ===== CRITICAL: Log full URL immediately =====
+      const fullUrl = window.location.href;
+      const searchStr = window.location.search;
+      const hashStr = window.location.hash;
+      const hostStr = window.location.hostname;
+      
       console.log('═══ CRITICAL URL DEBUG ═══');
-      console.log('Full URL:', window.location.href);
-      console.log('Search:', window.location.search);
-      console.log('Hash:', window.location.hash);
-      console.log('Hostname:', window.location.hostname);
-      LOG.warn('Full URL: ' + window.location.href);
-      LOG.warn('Search params: ' + window.location.search);
-      LOG.warn('Hash: ' + window.location.hash);
-      LOG.warn('Hostname: ' + window.location.hostname);
+      console.log('Full URL:', fullUrl);
+      console.log('Search:', searchStr);
+      console.log('Hash:', hashStr);
+      console.log('Hostname:', hostStr);
+      console.log('Pathname:', window.location.pathname);
+      
+      // Create visible debug element
+      const debugDiv = document.createElement('div');
+      debugDiv.style.cssText = 'position:fixed; top:10px; right:10px; background:#000; color:#0f0; font-family:monospace; font-size:11px; padding:10px; max-width:400px; z-index:99999; border:2px solid #0f0; max-height:200px; overflow:auto;';
+      debugDiv.innerHTML = `<div style="margin-bottom:5px; font-weight:bold;">URL DEBUG:</div>`
+        + `<div>Full: <code>${fullUrl.replace(/</g,'&lt;')}</code></div>`
+        + `<div>Search: <code>${searchStr || '(empty)'}</code></div>`
+        + `<div>Hash: <code>${hashStr || '(empty)'}</code></div>`
+        + `<div>Hostname: <code>${hostStr}</code></div>`
+        + `<div>Pathname: <code>${window.location.pathname}</code></div>`;
+      document.body.appendChild(debugDiv);
+      
+      LOG.warn('Full URL: ' + fullUrl);
+      LOG.warn('Search params: ' + searchStr);
+      LOG.warn('Hash: ' + hashStr);
+      LOG.warn('Hostname: ' + hostStr);
       
       // ===== HOOK INTO window.open (OAuth popups) =====
       const origOpen = window.open;
@@ -111,12 +129,18 @@
       // ===== 1. CHECK URL TOKEN =====
       const url = new URL(window.location);
       const tokenFromUrl = url.searchParams.get('token');
-      LOG.info('URL params', { has_token: !!tokenFromUrl, token_len: tokenFromUrl?.length || 0 });
+      const tokenLen = tokenFromUrl?.length || 0;
+      LOG.info('URL params', { has_token: !!tokenFromUrl, token_len: tokenLen });
       
       if (!tokenFromUrl) {
         LOG.error('🔴 NO TOKEN IN URL! Expected token param after OAuth redirect');
+        console.error('🔴 TOKEN MISSING - Worker redirect with ?token= parameter did not work!');
+        console.error('Current URL:', window.location.href);
+        console.error('Current search params:', window.location.search);
+        console.error('All URL search params:', Array.from(url.searchParams.entries()));
       } else {
         LOG.warn('🟢 TOKEN IN URL DETECTED!', { len: tokenFromUrl.length, preview: tokenFromUrl.substring(0, 30) });
+        console.log('✅ TOKEN RECEIVED:', tokenFromUrl.substring(0, 50) + '...');
       }
       
       if (tokenFromUrl) {
