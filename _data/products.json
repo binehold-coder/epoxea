@@ -4,63 +4,72 @@
         "name": "Ornament Galaxy",
         "description": "Beautiful galaxy-themed ornament with shimmering effects",
         "price": 29.99,
-        "category": "home"
+        "category": "home",
+        "image": "./images/1.JPEG"
     },
     {
         "id": "ornament-ocean",
         "name": "Ornament Ocean",
         "description": "Ocean-inspired ornament with turquoise and blue hues",
         "price": 34.99,
-        "category": "home"
+        "category": "home",
+        "image": "./images/2.JPEG"
     },
     {
         "id": "bookmark-forest",
         "name": "Bookmark Forest",
         "description": "Nature-inspired bookmark with pressed flowers and leaves",
         "price": 14.99,
-        "category": "accessories"
+        "category": "accessories",
+        "image": "./images/3.JPEG"
     },
     {
         "id": "bookmark-sunset",
         "name": "Bookmark Sunset",
         "description": "Warm sunset-colored bookmark with golden accents",
         "price": 14.99,
-        "category": "accessories"
+        "category": "accessories",
+        "image": "./images/4.JPEG"
     },
     {
         "id": "board-mineral",
         "name": "Board Mineral",
         "description": "Elegant mineral-patterned board for serving or display",
         "price": 49.99,
-        "category": "home"
+        "category": "home",
+        "image": "./images/5.JPEG"
     },
     {
         "id": "board-aurora",
         "name": "Board Aurora",
         "description": "Aurora borealis-inspired board with vibrant colors",
         "price": 54.99,
-        "category": "home"
+        "category": "home",
+        "image": "./images/6.JPEG"
     },
     {
         "id": "pendant-crystal",
         "name": "Pendant Crystal",
         "description": "Crystal-inspired resin pendant with geometric design",
         "price": 24.99,
-        "category": "jewelry"
+        "category": "jewelry",
+        "image": "./images/7.JPEG"
     },
     {
         "id": "ring-flower",
         "name": "Ring Flower",
         "description": "Botanical ring with real pressed flowers",
         "price": 19.99,
-        "category": "jewelry"
+        "category": "jewelry",
+        "image": "./images/8.JPEG"
     },
     {
         "id": "coaster-marble",
         "name": "Coaster Marble",
         "description": "Elegant marble-patterned coaster with protective backing",
         "price": 12.99,
-        "category": "accessories"
+        "category": "accessories",
+        "image": "./images/9.JPEG"
     }
     
 ]

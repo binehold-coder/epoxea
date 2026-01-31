@@ -70,6 +70,24 @@ async function loadContactContent() {
     }
 }
 
+const DEFAULT_PRODUCT_IMAGE = './assets/images/master-default.jpg';
+const DEFAULT_HERO_IMAGE = './assets/images/hero-default.jpg';
+
+function resolveProductImage(product) {
+    return (product && product.image) ? product.image : DEFAULT_PRODUCT_IMAGE;
+}
+
+function resolveHeroImage(product) {
+    return (product && (product.heroImage || product.image)) ? (product.heroImage || product.image) : DEFAULT_HERO_IMAGE;
+}
+
+function resolveGalleryImages(product) {
+    if (product && Array.isArray(product.gallery) && product.gallery.length > 0) {
+        return product.gallery;
+    }
+    return [resolveProductImage(product)];
+}
+
 // Render products based on filter and sort
 function renderProducts(filter) {
     const container = document.getElementById('products-grid');
@@ -91,10 +109,10 @@ function renderProducts(filter) {
 
 // Create product card HTML
 function createProductCard(product) {
-    const randomSeed = Math.floor(Math.random() * 10000) + Math.floor(Math.random() * 1000);
+    const imageSrc = resolveProductImage(product);
     return `
         <div class="product-card" data-product-id="${product.id}">
-            <img src="https://picsum.photos/280/250?random=${randomSeed}" alt="${product.name}" class="product-image">
+            <img src="${imageSrc}" alt="${product.name}" class="product-image">
             <div class="product-info">
                 <h3 class="product-name">${product.name}</h3>
                 <p class="product-price">${product.price}€</p>
@@ -118,16 +136,12 @@ function setupCarouselNavigation() {
 // Open product modal
 function openProductModal(product) {
     const modal = document.getElementById('product-modal');
-    const baseRandom = Date.now();
     
     // Block body scroll
     document.body.style.overflow = 'hidden';
     
     // Create gallery images
-    const galleryImages = [];
-    for (let i = 0; i < 6; i++) {
-        galleryImages.push(`https://picsum.photos/500/500?random=${baseRandom + i * 1000 + Math.random() * 10000}`);
-    }
+    const galleryImages = resolveGalleryImages(product);
     
     document.getElementById('modal-product-name').textContent = product.name;
     document.getElementById('modal-product-description').textContent = product.description;
@@ -135,27 +149,27 @@ function openProductModal(product) {
     document.getElementById('modal-main-image').src = galleryImages[0];
     document.getElementById('modal-main-image').dataset.currentIndex = 0;
     
-    // Create thumbnails
+    // Hide thumbnails (single main image only)
     const thumbContainer = document.getElementById('gallery-thumbs');
-    thumbContainer.innerHTML = galleryImages.map((img, index) => `
-        <div class="gallery-thumb ${index === 0 ? 'active' : ''}" data-index="${index}">
-            <img src="${img}" alt="Gallery image ${index + 1}">
-        </div>
-    `).join('');
-    
-    // Setup thumbnail clicks
-    document.querySelectorAll('.gallery-thumb').forEach(thumb => {
-        thumb.addEventListener('click', function() {
-            const index = this.dataset.index;
-            updateMainImage(index, galleryImages);
-        });
-    });
+    if (thumbContainer) {
+        thumbContainer.innerHTML = '';
+        thumbContainer.style.display = 'none';
+    }
     
     // Setup arrow navigation
     const prevArrow = document.querySelector('.gallery-nav-prev');
     const nextArrow = document.querySelector('.gallery-nav-next');
-    
+    const shouldShowArrows = galleryImages.length > 1;
+
     if (prevArrow) {
+        prevArrow.style.display = shouldShowArrows ? '' : 'none';
+    }
+
+    if (nextArrow) {
+        nextArrow.style.display = shouldShowArrows ? '' : 'none';
+    }
+    
+    if (prevArrow && shouldShowArrows) {
         prevArrow.onclick = (e) => {
             e.stopPropagation();
             let currentIndex = parseInt(document.getElementById('modal-main-image').dataset.currentIndex);
@@ -164,7 +178,7 @@ function openProductModal(product) {
         };
     }
     
-    if (nextArrow) {
+    if (nextArrow && shouldShowArrows) {
         nextArrow.onclick = (e) => {
             e.stopPropagation();
             let currentIndex = parseInt(document.getElementById('modal-main-image').dataset.currentIndex);
@@ -562,11 +576,11 @@ function setupHeroCarousel() {
     
     const itemsToShow = Math.min(5, products.length);
     
-    track.innerHTML = products.slice(0, itemsToShow).map((product, index) => {
-        const randomSeed = Math.floor(Math.random() * 10000) + index + 5000;
+    track.innerHTML = products.slice(0, itemsToShow).map((product) => {
+        const imageSrc = resolveHeroImage(product);
         return `
             <div class="hero-carousel-item" data-product-id="${product.id}">
-                <img src="https://picsum.photos/1920/600?random=${randomSeed}" alt="${product.name}">
+                <img src="${imageSrc}" alt="${product.name}">
             </div>
         `;
     }).join('');

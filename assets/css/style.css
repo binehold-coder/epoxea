@@ -69,7 +69,7 @@ section {
     top: 0;
     left: 0;
     right: 0;
-    z-index: 1000;
+    z-index: 2100;
 }
 
 .header-content {
@@ -159,32 +159,46 @@ section {
 
 .menu-toggle {
     display: none;
-    position: fixed;
-    top: 20px;
-    right: 15px;
+    position: relative;
     flex-direction: column;
     justify-content: center;
-    gap: 5px;
-    width: 40px;
-    height: 40px;
+    gap: 0;
+    width: 36px;
+    height: 36px;
     background: rgba(255, 255, 255, 0.95);
     border: 1px solid var(--border-color);
     border-radius: 4px;
-    padding: 8px;
+    padding: 0;
     cursor: pointer;
     z-index: 2000;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    align-items: center;
 }
 
 .menu-toggle span {
     display: block;
-    width: 100%;
+    position: absolute;
+    width: 22px;
     height: 3px;
     background: var(--text-dark);
     border-radius: 2px;
-    transition: all 0.3s ease;
+    transition: transform 0.3s ease, opacity 0.3s ease;
     font-size: 0;
     line-height: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.menu-toggle span:nth-child(1) {
+    top: 12px;
+}
+
+.menu-toggle span:nth-child(2) {
+    top: 18px;
+}
+
+.menu-toggle span:nth-child(3) {
+    top: 24px;
 }
 
 .menu-toggle.active {
@@ -197,7 +211,8 @@ section {
 }
 
 .menu-toggle.active span:nth-child(1) {
-    transform: rotate(45deg);
+    top: 18px;
+    transform: translateX(-50%) rotate(45deg);
 }
 
 .menu-toggle.active span:nth-child(2) {
@@ -205,7 +220,8 @@ section {
 }
 
 .menu-toggle.active span:nth-child(3) {
-    transform: rotate(-45deg);
+    top: 18px;
+    transform: translateX(-50%) rotate(-45deg);
 }
 
 .mobile-menu {
@@ -216,7 +232,7 @@ section {
     right: 0;
     background: var(--white);
     border-bottom: 1px solid var(--border-color);
-    z-index: 1999;
+    z-index: 2000;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -698,6 +714,7 @@ section {
     width: 90%;
     max-width: 600px;
     position: relative;
+    box-sizing: border-box;
 }
 
 .modal-product {
@@ -706,8 +723,8 @@ section {
 
 .close-modal {
     position: absolute;
-    right: 15px;
-    top: 10px;
+    right: 8px;
+    top: 6px;
     font-size: 2rem;
     cursor: pointer;
     color: var(--text-light);
@@ -735,9 +752,9 @@ section {
 }
 
 .gallery-thumbs {
-    display: flex;
+    display: none;
     gap: var(--spacing-sm);
-    margin-top: var(--spacing-md);
+    margin-top: 0;
 }
 
 .gallery-thumb {
@@ -784,6 +801,8 @@ section {
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
+    width: 100%;
+    display: block;
 }
 
 .add-to-cart-btn:hover {
@@ -1322,6 +1341,7 @@ section {
     /* Header adjustments */
     .header-content {
         padding: var(--spacing-sm) 0;
+        position: relative;
     }
 
     .nav {
@@ -1330,10 +1350,37 @@ section {
 
     .menu-toggle {
         display: flex !important;
+        position: relative;
+        transform: none;
+        align-self: center;
+        top: 0 !important;
     }
 
     .header-right {
-        gap: 0;
+        gap: var(--spacing-sm);
+        padding-right: 0;
+        align-items: center;
+        height: 36px;
+        align-content: center;
+    }
+
+    .language-selector {
+        height: 36px;
+        display: flex;
+        align-items: center;
+    }
+
+    .lang-select {
+        max-width: 120px;
+        height: 36px;
+        line-height: 36px;
+        margin: 0;
+    }
+
+    .menu-toggle {
+        height: 36px;
+        width: 36px;
+        margin: 0;
     }
 
     /* Hide hero carousel buttons on mobile */
@@ -1406,9 +1453,15 @@ section {
     }
 
     /* Modal */
+    .modal {
+        padding: var(--spacing-md);
+    }
+
     .modal-content {
-        width: 95%;
+        width: 100%;
         max-width: 100%;
+        margin: 0;
+        border-radius: 0;
     }
 
     .modal-body {
@@ -1417,6 +1470,11 @@ section {
 
     .modal-main-image {
         height: 300px;
+    }
+
+    .gallery-thumbs {
+        flex-wrap: wrap;
+        justify-content: center;
     }
 
     /* Scroll button positioning on mobile */
@@ -1503,8 +1561,8 @@ section {
     .menu-toggle {
         width: 38px !important;
         height: 38px !important;
-        top: 12px !important;
-        right: 12px !important;
+        top: 0 !important;
+        right: 0 !important;
     }
 
     .scroll-to-top {
